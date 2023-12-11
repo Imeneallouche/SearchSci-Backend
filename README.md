@@ -2,11 +2,15 @@
 
 PyArticleUploader is a powerful Python backend system designed for automating the process of uploading, extracting, and indexing scientific articles into Elasticsearch. Administered by authenticated moderators, this backend system enhances the management of scientific literature by streamlining the extraction and indexing process.
 
+<br><br>
+
 ## Features
 - **Moderator Management:** Add, delete, or modify moderators effortlessly
 - **Article Uploading:** Upload scientific articles from PDFs via URL
 - **Text Extraction:** Extract and analyze text content from PDF articles
 - **Elasticsearch Integration:** Index extracted information into Elasticsearch for efficient search operations
+
+<br><br>
 
 ## Getting Started
 1. **Clone the repository:**
@@ -15,19 +19,22 @@ PyArticleUploader is a powerful Python backend system designed for automating th
     ```
 
 2. **Install Dependencies:**
-   Python version: Python 3.12.0
-   Django:  pip install django  // version 5.0
-    
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 3. **Configure Elasticsearch Connection:**
     Edit the `config.py` file to set up your Elasticsearch connection.
+   
 
-4. **Run the Uploader:**
+5. **Run the Uploader:**
     ```bash
     python main.py
     ```
 
 Ensure proper authentication and authorization before performing admin actions. Happy moderating!
+
+<br><br>
 
 ## Project Members
 - Imène ALLOUCHE        (GitHub: https://github.com/Imeneallouche/)
