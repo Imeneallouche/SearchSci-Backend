@@ -15,9 +15,9 @@ PyArticleUploader is a powerful Python backend system designed for automating th
     ```
 
 2. **Install Dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+   Python version: Python 3.12.0
+   Django:  pip install django  // version 5.0
+    
 
 3. **Configure Elasticsearch Connection:**
     Edit the `config.py` file to set up your Elasticsearch connection.
