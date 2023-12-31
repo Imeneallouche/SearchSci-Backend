@@ -40,14 +40,41 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'accountsApp',
     'uploadApp',
     'articleApp',
+    
     'rest_framework',
     'django_filters',
     'rest_framework_simplejwt',
+    'django_elasticsearch_dsl',
+    'django_elasticsearch_dsl_drf',
+    'corsheaders',
+   
+    'drf_yasg',
 
 ]
+
+
+
+ELK_BASE_URL = 'elasticsearch://{username}:{password}@{host_ip}:{host_port}'
+ELASTIC_SEARCH_URL = ELK_BASE_URL.format(
+    username='elastic',
+    password='tpigl2024',
+    host_ip='localhost', # 'elasticsearch' - service name in docker-compose.yml
+    host_port='9200'
+)
+    
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': [ELASTIC_SEARCH_URL]
+    },
+}
+
+
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -57,7 +84,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'TP.urls'
 
@@ -90,10 +122,25 @@ DATABASES = {
     }
 }
 
+
+
+
+
+
+
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )}
+        'rest_framework.permissions.AllowAny',
+    ),
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100,
+    'ORDERING_PARAM': 'ordering',
+}
+
+
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=15),

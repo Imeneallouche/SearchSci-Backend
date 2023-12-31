@@ -1,3 +1,4 @@
+
 from django.shortcuts import render
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
@@ -5,15 +6,11 @@ from django.contrib.auth.models import User
 from .models import Moderateur,Utilisateur
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
-from .serializers import SingUpSerializer,UserSerializer
+from .serializers import SingUpSerializer,UserSerializer,UserSerializer2, UserSerializer3
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import logout , login as dj_login
 
-# Create your views here.    
-
-
-
-    
+  
 '''--------------------------------------------------------------------------------------
     Regetration: pour les trois users:
         1:Administrateur: avec la commande createsuperuser
@@ -21,7 +18,7 @@ from django.contrib.auth import logout , login as dj_login
         3:Utilisateur: la fonction register_Utilisateur
 --------------------------------------------------------------------------------------'''
 
-## Register: Client: Utilisateur simple 
+## Register_Utilisateur: Client: Utilisateur simple 
 @api_view(['POST'])
 def register_Utilisateur(request):
     data = request.data
@@ -50,6 +47,7 @@ def register_Utilisateur(request):
         return Response(user1.errors)
 
 
+#___________________________________________________#
 ## Add Moderateur: une fonctionnalité 3and l'administrateur==Resiter Moderateur
 @api_view(['POST'])
 def Add_Moderateur(request):
@@ -78,6 +76,8 @@ def Add_Moderateur(request):
                     )
     else:
         return Response(user1.errors)
+
+    
 '''--------------------------------------------------------------------------------------
     Login: pour les trois users:
         1:Administrateur: redirect vers 
@@ -93,7 +93,7 @@ def current_user(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def redirect_loggedin_user(request):
-
+   
     user = request.user
     utilisateur_exists = Utilisateur.objects.filter(user_id=user.id).exists()
     moderateur_exists = Moderateur.objects.filter(user_id=user.id).exists()
@@ -110,3 +110,195 @@ def redirect_loggedin_user(request):
         return Response({'user': 'utilisateur'})
     
     return Response({'user': 'Non trouvé'})
+
+'''--------------------------------------------------------------------------------------
+    Gestion des modérateurs: 
+        1:supprimer modérateur
+        2:modifier moderateur 
+        3:afficher moderateur
+        4:afficher moderateurs
+--------------------------------------------------------------------------------------'''
+## 1:supprimer_moderateur
+@api_view(['DELETE'])
+def SupprimerModerateur(request):
+    data = request.data
+
+    try:
+        email = data.get('email', None)  # Filtrage par email
+        if email is None:
+            return Response({'error': 'Email parameter is required in the request data.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user1 = User.objects.get(email=email)
+        Moderateur.objects.get(user=user1).delete()
+        User.objects.get(email=email).delete()
+
+        return Response({'details': 'Moderateur deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+
+    except User.DoesNotExist:
+        return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+    except Moderateur.DoesNotExist:
+        return Response({'error': 'Moderateur not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+## 2:modifier_moderateur
+@api_view(['PUT'])
+def ModifierModerateur(request):
+    data = request.data
+   
+    try:
+        email = data.get('email', None)
+        if email is None:
+            return Response({'error': 'Email parameter is required in the request data.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_instance = User.objects.get(email=email)
+        moderateur_instance = Moderateur.objects.get(user=user_instance)
+
+        # Update user fields
+        user_instance.first_name = data.get('first_name', user_instance.first_name)
+        user_instance.last_name = data.get('last_name', user_instance.last_name)
+      # Add other feilds : 
+      #  user_instance.last_name = data.get('password', user_instance.password)
+      #  user_instance.last_name = data.get('email', user_instance.email)
+        user_instance.save()
+      #  moderateur_instance.save()
+
+        return Response({'details': 'Moderateur updated successfully!'}, status=status.HTTP_200_OK)
+
+    except User.DoesNotExist:
+        return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+    except Moderateur.DoesNotExist:
+        return Response({'error': 'Moderateur not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    
+## 3:Afficher un moderateur par email
+@api_view(['GET'])
+def AfficherModerateur(request):
+    try:
+        email = request.data.get('email', None)
+
+        if email is None:
+            return Response({'error': 'Email parameter is required in the request data.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user1 = User.objects.filter(username=email).first()
+
+        if not user1:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        moderateur = Moderateur.objects.filter(user=user1).first()
+
+        if not moderateur:
+            return Response({'error': 'Moderateur not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Return specific fields directly
+        serializer = UserSerializer2(moderateur)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+## 4:Afficher touts les moderateurs de l'app web 
+@api_view(['GET'])
+def AfficherModerateurs(request):
+    try:
+        # Retrieve all Moderateurs
+        moderateurs = Moderateur.objects.all()
+
+        if not moderateurs:
+            return Response({'error': 'No Moderateurs found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Serialize the list of Moderateurs
+        serializer = UserSerializer2(moderateurs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
+
+
+
+
+'''  _______________________extra____________________________'''
+
+ ## Afficher un utilisateur par son email    
+@api_view(['GET'])
+def AfficherUtilisateur(request):
+    try:
+        email = request.data.get('email', None)
+
+        if email is None:
+            return Response({'error': 'Email parameter is required in the request data.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.filter(email=email).first()
+
+        if not user:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        utilisateur = Utilisateur.objects.get(user=user)
+
+        if not Utilisateur:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Return specific fields directly
+        serializer = UserSerializer2(utilisateur)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['GET'])
+def AfficherUtilisateurs(request):
+    try:
+        # Retrieve all users
+        utilisateurs = Utilisateur.objects.all()
+
+        # Serialize the list of users
+        serializer = UserSerializer2(utilisateurs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+## Display all users : Admin/moder/utilis
+
+@api_view(['GET'])
+def AfficherUsers(request):
+    try:
+        # Retrieve all users
+        users = User.objects.all()
+
+        # Serialize the list of users
+        serializer = UserSerializer3(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+## Delete a user (in general) par email
+
+@api_view(['DELETE'])
+def SupprimerUser(request):
+    data = request.data
+
+    try:
+        email = data.get('email', None)  # Filtrage par email
+        if email is None:
+            return Response({'error': 'Email parameter is required in the request data.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        User.objects.filter(email=email).delete()
+    
+        return Response({'details': 'User deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+
+    except User.DoesNotExist:
+        return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+
