@@ -1,23 +1,37 @@
-import json
 
 from rest_framework import serializers
-from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
-from .documents import ArticleDocument
 
-class ArticleDocumentSerializer(DocumentSerializer):
+
+
+class ArticleDocumentSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    titre = serializers.CharField(read_only=True)
+    resume = serializers.CharField(read_only=True)
+    texteIntegral = serializers.CharField(read_only=True)
+    motsCles = serializers.CharField(read_only=True)
+    urlPdf=serializers.URLField(read_only=True)
+    dateDePublication=serializers.DateField(read_only=True)
+    references=serializers.CharField(read_only=True)
+    auteurs=serializers.CharField(read_only=True)
+    traiter=serializers.BooleanField(read_only=True)
+   
+
+
+
     class Meta:
-        # Specify the correspondent document class
-        document = ArticleDocument
-
-        # List the serializer fields. Note, that the order of the fields
-        # is preserved in the ViewSet.
         fields = (
             'id',
             'titre',
             'resume',
-            'mots_cle',
-            'texte_integral',
-            'URL_Pdf',
-            'auteurs',
+            'texteIntegral',
+            'motsCles',
+            'urlPdf',
+            'dateDePublication',
             'references',
+            'auteurs',
+            'traier',
+            
         )
+      
+ 
+  

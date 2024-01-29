@@ -1,13 +1,13 @@
-from django.conf import settings
 from django_elasticsearch_dsl import Document, Index, fields
 from elasticsearch_dsl import analyzer
-
+from django_elasticsearch_dsl_drf.compat import KeywordField, StringField
 from articleApp.models import Article
 
-# Name of the Elasticsearch index
-INDEX = Index('article2')
 
-# See Elasticsearch Indices API reference for available settings
+# Name of the Elasticsearch index
+INDEX = Index('article')
+
+
 INDEX.settings(
     number_of_shards=1,
     number_of_replicas=1
@@ -22,69 +22,85 @@ html_strip = analyzer(
 
 @INDEX.doc_type
 class ArticleDocument(Document):
-    """Article Elasticsearch document."""
+   
     id = fields.IntegerField(attr='id')
     fielddata=True
+
     titre= fields.TextField(
-        fielddata=True,
-        analyzer=html_strip,
-        fields={
-            'raw': fields.TextField(analyzer='keyword'),
+       fields={
+            'raw': KeywordField(),
+            'suggest': fields.CompletionField(),
+            
         }
     )
-
     resume = fields.TextField(
-        analyzer=html_strip,
-        fields={
-            'raw': fields.TextField(analyzer='keyword'),
+          fields={
+            'raw': KeywordField(),
+            'suggest': fields.CompletionField(),
         }
     )
 
-    mots_cles = fields.TextField(
-        analyzer=html_strip,
+    motsCles = fields.TextField(
+         fields={
+            'raw': KeywordField(),
+            'suggest': fields.CompletionField(),
+        }
+    )
+
+  
+    urlPdf = fields.TextField(
+          fields={
+            'raw': KeywordField(),
+        }
         
-        fields={
-            'raw': fields.TextField(analyzer='keyword'),
-        }
     )
 
-    texte_integral = fields.TextField(
-        analyzer=html_strip,
-       
-        fields={
-            'raw': fields.TextField(analyzer='keyword'),
-        }
-    )
-    url_pdf = fields.TextField(
-        analyzer=html_strip,
-       
-        fields={
-            'raw': fields.TextField(analyzer='keyword'),
-        }
-    )
+    dateDePublication=fields.DateField(
+         fields={
+            'raw': {
+                'type': 'keyword',
+                
+            }
+        }, )
 
 
- 
-    references = fields.TextField(
-        attr='references_indexing',
-        analyzer=html_strip,
-        
+    texteIntegral= fields.TextField(
+        attr='texteIntegral',
         fields={
-            'raw': fields.TextField(analyzer='keyword'),
-        }
-    )
-
-    auteurs= fields.TextField(
-        attr='Auteurs_indexing',
-        analyzer=html_strip,
-        
-        fields={
-            'raw': fields.TextField(analyzer='keyword', multi=True),
-            'suggest': fields.CompletionField(multi=True),
+            'raw': {
+                'type': 'keyword',
+                
+            }
         },
-        multi=True
     )
+    traiter= fields.BooleanField(
+        fields={
+            'raw': {
+                'type': 'keyword',
+                
+            }
+        },
+    )
+
+
+    auteurs = fields.NestedField(
+        properties={
+        'full_name': fields.TextField(),
+        'email': fields.TextField(),
+        'institution': fields.ObjectField(
+            properties={
+            'nom': fields.TextField(),
+            'adress': fields.TextField(),
+        }),    
+    })
+    references = fields.NestedField(
+        properties={
+        'titre': fields.TextField(
+            fields={
+            'raw': KeywordField(),
+        } ),
+    })
+    
 
     class Django(object):
-        """Inner nested class Django."""
-        model = Article # The model associate with this Document
+        model = Article

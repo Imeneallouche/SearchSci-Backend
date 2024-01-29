@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.http import JsonResponse
 import json
 import requests
-from .documents import *
+
 from .serializers import *
 from .models import Article
 

@@ -27,8 +27,7 @@ SECRET_KEY = 'django-insecure-t4)9dz0rc2-hscnkwx97*e_q=2cu$!0a&vxp=98h$(p23os_2z
 DEBUG = True
 ALLOWED_HOSTS = []
 
-# DEBUG = False
-# ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
 
 
 # Application definition
@@ -77,19 +76,20 @@ ELASTICSEARCH_DSL = {
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-    
-    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',   
 ]
+CORS_ALLOWED_ORIGINS=['http://localhost:3000']
 
-CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'TP.urls'
 
@@ -132,7 +132,8 @@ DATABASES = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.permissions.AllowAny',
+       
+        
     ),
     'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.PageNumberPagination',
