@@ -29,6 +29,7 @@ class ReferenceSerializer(serializers.ModelSerializer):
       fields=['titre']
 
 
+
 class ArticleSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     titre = serializers.CharField(read_only=True)

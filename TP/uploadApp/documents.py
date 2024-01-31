@@ -46,6 +46,12 @@ class ArticleDocument(Document):
             'suggest': fields.CompletionField(),
         }
     )
+    textIntegral = fields.TextField(
+         fields={
+            'raw': KeywordField(),
+        }
+    )
+
 
   
     urlPdf = fields.TextField(
@@ -64,15 +70,15 @@ class ArticleDocument(Document):
         }, )
 
 
-    texteIntegral= fields.TextField(
-        attr='texteIntegral',
-        fields={
-            'raw': {
-                'type': 'keyword',
+    # texteIntegral= fields.TextField(
+    #     attr='texteIntegral',
+    #     fields={
+    #         'raw': {
+    #             'type': 'keyword',
                 
-            }
-        },
-    )
+    #         }
+    #     },
+    # )
     traiter= fields.BooleanField(
         fields={
             'raw': {

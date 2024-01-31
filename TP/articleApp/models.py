@@ -31,7 +31,7 @@ class Auteur(models.Model):
 class Article(models.Model):
     titre = models.CharField(max_length=100,default='',blank=False)
     resume = models.TextField(default='',blank=True)
-    # texteIntegral = models.TextField( default='',blank=True)
+    texteIntegral = models.TextField( default='',blank=True)
     motsCles= models.CharField(max_length=1000, default='',blank=True)
     urlPdf = models.URLField(max_length=200, default='',blank=False)
     dateDePublication=models.DateField(null=True)
@@ -67,17 +67,17 @@ class Article(models.Model):
 
 
 
-    @property
-    def texteIntegral(self):
-      chemin_fichier = 'C:\\Users\\DELL\\Desktop\\TPIGL\\SearchSci-Backend\\TP\\TexteIntegral.txt'
-      with open(chemin_fichier, 'r') as fichier:
-        contenu = fichier.read()
-        print(contenu)
-        return contenu
-      with open(chemin_fichier, 'w') as fichier:
-        fichier.write('')
-      print(contenu)
-      return contenu
+    # @property
+    # def texteIntegral(self):
+    #   chemin_fichier = 'C:\\Users\\DELL\\Desktop\\TPIGL\\SearchSci-Backend\\TP\\TexteIntegral.txt'
+    #   with open(chemin_fichier, 'r') as fichier:
+    #     contenu = fichier.read()
+    #     print(contenu)
+    #     return contenu
+    #   with open(chemin_fichier, 'w') as fichier:
+    #     fichier.write('')
+    #   print(contenu)
+    #   return contenu
       
 
 
