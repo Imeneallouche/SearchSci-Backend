@@ -7,8 +7,6 @@ from articleApp.models import  Article
 
 class Administrateur(models.Model): 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-
     def __str__(self):
       return f"{self.user.first_name} {self.user.last_name}"
       

@@ -122,39 +122,31 @@ class ArticleDocumentView(BaseDocumentViewSet):
         },
     }
 
-
     # Define filtering fields
     filter_fields = {
         'id': None,
         'traiter': 'traiter.raw',
         'motsCles':'motsCles.raw',
         'auteurs.institution.nom': 'auteurs.institution.nom.raw',
+        'auteurs.nom': 'auteurs.full_name.raw',
         # 'references':'references.titre.raw',
     }
     
-
+    # Nested filtering fields
     # nested_filter_fields = {
-    #     'continent_country': {
-    #         'field': 'continent.country.name.raw',
-    #         'path': 'continent.country',
+    #     'references': {
+    #         'field': 'titre.raw',
+    #         'path': 'references',
+            
     #     },
-    #     'continent_country_city': {
-    #         'field': 'continent.country.city.name.raw',
-    #         'path': 'continent.country.city',
+    #     'auteursName':{
+    #         'field': 'full_name.raw',
+    #         'path': 'auteurs',
     #     },
     # }
 
-    # Nested filtering fields
     nested_filter_fields = {
-        'references': {
-            'field': 'titre.raw',
-            'path': 'references',
-            
-        },
-        'auteursName':{
-            'field': 'full_name.raw',
-            'path': 'auteurs',
-        },
+        'auteurs': ['full_name', 'institution.nom'],
     }
 
 
@@ -162,7 +154,7 @@ class ArticleDocumentView(BaseDocumentViewSet):
 
     ordering_fields ={
         'id': 'id',
-        #ajouter un ordre par date de publication
+
     }
 
     # Specify default ordering

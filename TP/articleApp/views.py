@@ -1,25 +1,11 @@
 from django.shortcuts import render,get_object_or_404
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from django.http import JsonResponse
-import json
-import requests
-
-from .serializers import *
 from .models import Article
-
-
-from django_elasticsearch_dsl_drf.filter_backends import (
-    FilteringFilterBackend,
-    CompoundSearchFilterBackend
-)
-from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
-from django_elasticsearch_dsl_drf.filter_backends import (
-    FilteringFilterBackend,
-    OrderingFilterBackend,
-)
-
-
+from .serializers import ArticleSerializer,UtilisateurSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from accountsApp.models import Utilisateur
 # Create your views here.
 
 
@@ -38,56 +24,53 @@ def get_by_id_Articles(request,pk):
     return Response ({"Article":serializer.data})
 
 
+## version1
+@api_view(['GET'])
+def afficher_details_article(request,pk):
+    article = get_object_or_404(Article, id=pk)
+    serializer = ArticleSerializer(article)
+    return Response(serializer.data)
 
+## version2
+@api_view(['GET'])
+def afficher_details_article(request):
+    article_id = request.data.get('article_id', None)
 
-# def generate_random_data():
-#     url = 'https://newsapi.org/v2/everything?q=tesla&from=2023-11-25&sortBy=publishedAt&apiKey=b976da46a1ac45eb868d27e210bfa0ee'
-#     r = requests.get(url)
-#     payload = json.loads(r.text)
-#     count = 1
-#     for data in payload.get('articles'):
-#         print(count)
-#         ElasticDemo.objects.create(
-#             title = data.get('title'),
-#             content = data.get('description')
-#         )
+    if article_id is None:
+        return Response({'error': 'Article ID is required in the request data.'}, status=status.HTTP_400_BAD_REQUEST)
 
-# def index(request):
-#     generate_random_data()
-#     return JsonResponse({'status' : 200})
-
-
-
-
+    article = get_object_or_404(Article, id=article_id)
+    serializer = ArticleSerializer(article)
+    return Response(serializer.data)
 
 
 
-# class PublisherDocumentView(DocumentViewSet):
-#     document = NewsDocument
-#     serializer_class = NewsDocumentSerializer
-#     lookup_field = 'first_name'
-#     fielddata=True
-#     filter_backends = [
-#         FilteringFilterBackend,
-#         OrderingFilterBackend,
-#         CompoundSearchFilterBackend,
-#     ]
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_to_favorites(request):
+    article_id = request.data.get('article_id')   # Fix: Added missing parentheses and quotes
+    print(request.user)
+    print(article_id)
+    print("----------------------------------------")
+    try:
+        utilisateur = Utilisateur.objects.get(user=request.user)
+        article = Article.objects.get(pk=article_id)
+        utilisateur.Favoris.add(article)
+        utilisateur.save()
+        return Response({'details': 'Article added to favorites successfully!'}, status=status.HTTP_200_OK)
+    except Article.DoesNotExist:
+        return Response({'error': 'Article not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    
+
    
-#     search_fields = (
-#         'title',
-#         'content',
-#     )
-#     multi_match_search_fields = (
-#        'title',
-#         'content',
-#     )
-#     filter_fields = {
-#        'title' : 'title',
-#         'content' : 'content',
-#     }
-#     ordering_fields = {
-#         'id': None,
-#     }
-#     ordering = ( 'id'  ,)
-        
-  
+## consulter Favoris
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def view_favorites(request):
+    utilisateur = Utilisateur.objects.get(user=request.user)
+    serializer = UtilisateurSerializer(utilisateur)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
