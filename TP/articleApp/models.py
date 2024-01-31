@@ -1,6 +1,5 @@
 from django.db import models
 
-
 #done
 class Reference(models.Model):
     titre = models.TextField( default='',blank=False)

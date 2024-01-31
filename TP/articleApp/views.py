@@ -37,6 +37,43 @@ def get_by_id_Articles(request,pk):
     print(article)
     return Response ({"Article":serializer.data})
 
+@api_view(['GET'])
+def get_Upload_List(request): #Affiche la liste des titres des articles uploadés non vérifiés
+ if request.method=='GET':
+   articlesUploades = Article.objects.filter(traiter=False)
+   serializer = ArticleTitleSerializer(articlesUploades,many=True)
+   return Response ({"Articles Uploadés":serializer.data})
+
+@api_view(['GET'])
+def get_Article_Details(request, id):
+    try:
+       article = Article.objects.get(pk=id)
+    except Article.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method=='GET':
+        serializer = ArticleSerializer(article)
+        return Response({"Détails de l'article":serializer.data})
+
+
+@api_view(['DELETE'])
+def delete_Article(request, id):
+    try:
+       article = Article.objects.get(pk=id)
+    except Article.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method=='DELETE':
+        article.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+
+
+    
+
+  
+
 
 
 

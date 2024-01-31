@@ -61,7 +61,7 @@ INSTALLED_APPS = [
 ELK_BASE_URL = 'elasticsearch://{username}:{password}@{host_ip}:{host_port}'
 ELASTIC_SEARCH_URL = ELK_BASE_URL.format(
     username='elastic',
-    password='tpigl2024',
+    password='8CxUgaO8RFHey9KLqhMB',
     host_ip='localhost', # 'elasticsearch' - service name in docker-compose.yml
     host_port='9200'
 )
@@ -132,7 +132,6 @@ DATABASES = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.permissions.AllowAny',
     ),
     'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.PageNumberPagination',

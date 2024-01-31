@@ -8,4 +8,10 @@ urlpatterns = [
     # path('index/',views.index,name='articles' ),
    
     # path('search/' ,views.PublisherDocumentView.as_view({'get': 'list'})),
+
+    path('uploadList/',views.get_Upload_List,name='uploadList' ),
+    path('detailsArticle/<int:id>/',views.get_Article_Details,name='detailsArticle' ),
+    path('deleteArticle/<int:id>/',views.delete_Article,name='deleteArticle' ),
+
+
 ]
