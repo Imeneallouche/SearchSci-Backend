@@ -8,4 +8,5 @@ urlpatterns = [
     path('supprimer_article/<str:pk>/',views.supprimer_Article,name='supprimer_Article' ),
     path('addToFavorites/<str:pk>/',views.add_to_favorites,name='addToFavorites' ),
     path('favorites/',views.view_favorites,name='favorites' ),
+    path('Rectifier_Article/',views.rectifierArticle,name='rectifierArticle'),
 ]
