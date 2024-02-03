@@ -22,6 +22,10 @@ class AuteurSerializer(serializers.ModelSerializer):
              
         }
 
+      class Meta:
+        model = Auteur
+        fields = '__all__'
+
    
 class ReferenceSerializer(serializers.ModelSerializer):
    class Meta: 
@@ -41,7 +45,10 @@ class ArticleSerializer(serializers.ModelSerializer):
     references=ReferenceSerializer(many=True, read_only=True)
     auteurs=AuteurSerializer(many=True, read_only=True)
     traiter=serializers.BooleanField(read_only=True)
-
+    
+    class Meta:
+        model = Article
+        fields = '__all__'
 
     def to_representation(self, instance):
         return {

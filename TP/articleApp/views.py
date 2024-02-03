@@ -7,37 +7,74 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from accountsApp.models import Utilisateur
 from .models import Article, Auteur, Reference, Institution
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
+from drf_spectacular.types import OpenApiTypes
 
 
+@extend_schema(
+    responses={
+     200: ArticleSerializer(many=True),
+     }
+)
 #afficher tout les article
-@api_view(['PUT','GET','DELETE','POST'])
+@api_view(['GET'])
 def get_all_Articles(request):
+    """
+    Retreive information about all articles
+    """
     articles=Article.objects.all()
     serializer=ArticleSerializer(articles,many=True)
     return Response ({"Articles":serializer.data})
 
 
+@extend_schema(
+    responses={
+        200: ArticleSerializer,
+    }
+)   
 #afficher détails article
-@api_view(['PUT','GET','DELETE','POST'])
+@api_view(['GET'])
 def get_by_id_Articles(request,pk):
+    """
+    Retreive information about a specific article
+    """
     article=get_object_or_404(Article,id=pk)
     serializer=ArticleSerializer(article,many=False)
     return Response ({"Article":serializer.data})
 
+
+@extend_schema(
+    responses={
+        200: OpenApiResponse(description="Article deleted successfully."),
+        404: OpenApiResponse(description="Article not found ."),
+    }
+)    
 #supprimer article
-@api_view(['PUT','GET','DELETE','POST'])
+@api_view(['DELETE'])
 def supprimer_Article(request,pk):
+    """
+    Deletes an Article based on the id.
+    
+    """
     try:
         Article.objects.get(id=pk).delete()
         return Response({'details': 'Article deleted successfully!'}, status=status.HTTP_200_OK)
     except Article.DoesNotExist:
         return Response({'error': 'Article not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-
+@extend_schema(
+    responses={
+        200: OpenApiResponse(description="Article added to favorites successfully."),
+        404: OpenApiResponse(description="Article not found ."),
+    }
+)
 #ajouter article to favoris
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_to_favorites(request, article_id):
+    """
+    Adds an Article to favorites
+    """
     try:
         utilisateur = Utilisateur.objects.get(user=request.user)
         article = Article.objects.get(pk=article_id)
@@ -48,17 +85,40 @@ def add_to_favorites(request, article_id):
         return Response({'error': 'Article not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
+@extend_schema(
+    responses={
+        200: OpenApiResponse(description="Success. User's favorite articles retrieved."),
+    }
+)
 ## consulter Favoris
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def view_favorites(request):
+    """
+    View user's favorite articles.
+
+    Retrieves the list of articles favorited by the authenticated user.
+
+    """
     utilisateur = Utilisateur.objects.get(user=request.user)
     serializer = UtilisateurSerializer(utilisateur)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+@extend_schema(
+    responses={
+        200: OpenApiResponse(description="Article rectified successfully."),
+        400: OpenApiResponse(description="Error: Article's ID not provided."),
+        404: OpenApiResponse(description="Article not found ."),
+    }
+
+)
 ## réctifier article
 @api_view(['PUT'])
 def rectifierArticle(request):
+    """
+    Rectify an article
+    """
     data = request.data
     article_data = data.get('Article', None)
     pk = article_data.get('id', None)

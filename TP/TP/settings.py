@@ -53,6 +53,8 @@ INSTALLED_APPS = [
    
     'drf_yasg',
 
+    'drf_spectacular'
+
 ]
 
 
@@ -137,6 +139,11 @@ REST_FRAMEWORK = {
         'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 100,
     'ORDERING_PARAM': 'ordering',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": 'ScienSpace Documentation',
 }
 
 
