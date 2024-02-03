@@ -1,0 +1,7 @@
+accountsApp.views module
+=============
+
+.. automodule:: accountsApp.views
+   :members:
+   :undoc-members:
+   :show-inheritance:
