@@ -1,1 +1,14 @@
 Superuser: Administrateur, mdp: 1234
+
+
+
+
+cmd to run tests:
+unitaires: 
+python manage.py test accountsApp/tests/
+python manage.py test articleApp/tests/
+
+
+
+fonctionnel: 
+python manage.py test .\functional_tests\
