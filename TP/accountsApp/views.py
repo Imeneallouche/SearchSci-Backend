@@ -73,6 +73,7 @@ def register_Utilisateur(request):
 )
 ## Add Moderateur: une fonctionnalité chez l'administrateur==Register Moderateur
 @api_view(['POST'])
+
 def Add_Moderateur(request):
     """
     Add_Moderateur: register a Moderateur.
@@ -118,7 +119,7 @@ def Add_Moderateur(request):
     responses={200: UserSerializer}
 )
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+
 def current_user(request):
     """
     Retrieve information about the currently authenticated user.
@@ -137,7 +138,7 @@ def current_user(request):
     }
 )
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+
 def redirect_loggedin_user(request):
     """
     Redirects logged-in user to appropriate page based on their role.
@@ -179,6 +180,7 @@ def redirect_loggedin_user(request):
 )
 ## 1:supprimer_moderateur
 @api_view(['DELETE'])
+
 def SupprimerModerateur(request):
     """
     Deletes a Moderateur based on the email.
@@ -212,6 +214,7 @@ def SupprimerModerateur(request):
 )
 ## 2:modifier_moderateur
 @api_view(['PUT'])
+
 def ModifierModerateur(request):
     """
     Modify a Moderateur.
@@ -253,7 +256,8 @@ def ModifierModerateur(request):
 )    
 ## 3:Afficher un moderateur par email
 @api_view(['GET'])
-def AfficherModerateur(request):
+
+def AfficherModerateur(request,email):
     """
     Retrieve information about a specific Moderateur.
 
@@ -261,12 +265,12 @@ def AfficherModerateur(request):
 
     """
     try:
-        email = request.data.get('email', None)
+        # email = request.data.get('email', None)
 
         if email is None:
             return Response({'error': 'Email parameter is required in the request data.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        user1 = User.objects.filter(username=email).first()
+        user1 = User.objects.filter(email=email).first()
 
         if not user1:
             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -292,6 +296,7 @@ def AfficherModerateur(request):
 )
 ## 4:Afficher touts les moderateurs de l'app web 
 @api_view(['GET'])
+
 def AfficherModerateurs(request):
     """
     Retrieve information about all Moderateurs.
@@ -329,6 +334,7 @@ def AfficherModerateurs(request):
 )    
  ## Afficher un utilisateur par son email    
 @api_view(['GET'])
+
 def AfficherUtilisateur(request):
     """
     Retrieve information about a specific Utilisateur
@@ -364,6 +370,7 @@ def AfficherUtilisateur(request):
      }
 )   
 @api_view(['GET'])
+
 def AfficherUtilisateurs(request):
     """
     Retrieve information about all Utilisateurs.
@@ -392,6 +399,7 @@ def AfficherUtilisateurs(request):
 )
 ## Display all users : Admin/moder/utilis
 @api_view(['GET'])
+
 def AfficherUsers(request):
     """
     Retrieve information about all Users: Admins, Moderateurs and Utilisateurs.

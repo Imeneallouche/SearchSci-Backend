@@ -1,0 +1,142 @@
+{
+    "article": {
+        "aliases": {},
+        "mappings": {
+            "properties": {
+                "auteurs": {
+                    "type": "nested",
+                    "properties": {
+                        "email": {
+                            "type": "text"
+                        },
+                        "full_name": {
+                            "type": "text"
+                        },
+                        "institution": {
+                            "properties": {
+                                "adress": {
+                                    "type": "text"
+                                },
+                                "nom": {
+                                    "type": "text"
+                                }
+                            }
+                        }
+                    }
+                },
+                "dateDePublication": {
+                    "type": "date",
+                    "fields": {
+                        "raw": {
+                            "type": "keyword"
+                        }
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "motsCles": {
+                    "type": "text",
+                    "fields": {
+                        "raw": {
+                            "type": "keyword"
+                        },
+                        "suggest": {
+                            "type": "completion",
+                            "analyzer": "simple",
+                            "preserve_separators": true,
+                            "preserve_position_increments": true,
+                            "max_input_length": 50
+                        }
+                    }
+                },
+                "references": {
+                    "type": "nested",
+                    "properties": {
+                        "titre": {
+                            "type": "text",
+                            "fields": {
+                                "raw": {
+                                    "type": "keyword"
+                                }
+                            }
+                        }
+                    }
+                },
+                "resume": {
+                    "type": "text",
+                    "fields": {
+                        "raw": {
+                            "type": "keyword"
+                        },
+                        "suggest": {
+                            "type": "completion",
+                            "analyzer": "simple",
+                            "preserve_separators": true,
+                            "preserve_position_increments": true,
+                            "max_input_length": 50
+                        }
+                    }
+                },
+                "textIntegral": {
+                    "type": "text",
+                    "fields": {
+                        "raw": {
+                            "type": "keyword"
+                        }
+                    }
+                },
+                "titre": {
+                    "type": "text",
+                    "fields": {
+                        "raw": {
+                            "type": "keyword"
+                        },
+                        "suggest": {
+                            "type": "completion",
+                            "analyzer": "simple",
+                            "preserve_separators": true,
+                            "preserve_position_increments": true,
+                            "max_input_length": 50
+                        }
+                    }
+                },
+                "traiter": {
+                    "type": "boolean",
+                    "fields": {
+                        "raw": {
+                            "type": "keyword"
+                        }
+                    }
+                },
+                "urlPdf": {
+                    "type": "text",
+                    "fields": {
+                        "raw": {
+                            "type": "keyword"
+                        }
+                    }
+                }
+            }
+        },
+        "settings": {
+            "index": {
+                "routing": {
+                    "allocation": {
+                        "include": {
+                            "_tier_preference": "data_content"
+                        }
+                    }
+                },
+                "number_of_shards": "1",
+                "provided_name": "article",
+                "creation_date": "1707129197678",
+                "number_of_replicas": "1",
+                "uuid": "VOcIa64tTcOckBKmUQlhbQ",
+                "version": {
+                    "created": "8500003"
+                }
+            }
+        }
+    }
+}

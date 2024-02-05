@@ -90,6 +90,46 @@ def add_to_favorites(request, article_id):
         200: OpenApiResponse(description="Success. User's favorite articles retrieved."),
     }
 )
+
+
+##supprimer un article de liste Favoris: 
+def remove_from_favorites(request, article_id):
+    """
+    Removes an Article from favorites
+    """
+    try:
+        utilisateur = Utilisateur.objects.get(user=request.user)
+        article = Article.objects.get(pk=article_id)
+        
+        # Check if the article is in the user's favorites
+        if article in utilisateur.Favoris.all():
+            utilisateur.Favoris.remove(article)
+            utilisateur.save()
+            return Response({'details': 'Article removed from favorites successfully!'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Article is not in favorites.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+    except Article.DoesNotExist:
+        return Response({'error': 'Article not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+##Verifier si un article est dans la liste des favoris: 
+def is_article_in_favorites(request, article_id):
+    """
+    Checks if an Article is in favorites
+    """
+    try:
+        utilisateur = Utilisateur.objects.get(user=request.user)
+        article = Article.objects.get(pk=article_id)
+        
+        # Check if the article is in the user's favorites
+        if article in utilisateur.Favoris.all():
+            return Response({'in_favorites': True}, status=status.HTTP_200_OK)
+        else:
+            return Response({'in_favorites': False}, status=status.HTTP_200_OK)
+            
+    except Article.DoesNotExist:
+        return Response({'error': 'Article not found.'}, status=status.HTTP_404_NOT_FOUND)    
+
 ## consulter Favoris
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

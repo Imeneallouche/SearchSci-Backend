@@ -3,13 +3,12 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-
-    path('login/',views.redirect_loggedin_user,name='login'),
+    path('redirect/',views.redirect_loggedin_user,name='login'),
     path('register_utilisateur/',views.register_Utilisateur,name='register_utilisateur'),
     path('ajouter_moderateur/',views.Add_Moderateur,name='ajouter_moderateur'),
     path('supprimer_moderateur/', views.SupprimerModerateur, name='supprimer_moderateur'),
     path('modifier_moderateur/', views.ModifierModerateur, name='modifier_moderateur'),
-    path('afficher_moderateur/', views.AfficherModerateur, name='afficher_moderateur'),
+    path('afficher_moderateur/<str:email>/', views.AfficherModerateur, name='afficher_moderateur'),
     path('afficher_moderateurs/', views.AfficherModerateurs, name='afficher_moderateurs'),
      #------------extra------------------
     path('supprimer_user/', views.SupprimerUser, name='supprimer_user'),

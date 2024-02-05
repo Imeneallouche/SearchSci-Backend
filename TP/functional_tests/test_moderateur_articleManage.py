@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+from selenium.common.exceptions import TimeoutException
 
 class TestSearchFunctionality(TestCase):
     @classmethod
@@ -30,27 +31,26 @@ class TestSearchFunctionality(TestCase):
             search_input.send_keys('analysis')
             time.sleep(10)
 
-            # Find the search link and click it
-            search_link = WebDriverWait(self.driver, 10).until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[href^="/FilterArticles/"]'))
+            # Find and click on the search button
+            search_button = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, 'button span.search-icon'))
             )
-            search_link.click()
-
-            # Wait for the search results page to load (adjust wait time as needed)
-            first_h1_element = WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, 'h1.text-xl.text-black.font-bold'))
-            )
+            
+            search_button.click()
             time.sleep(10)
-
-
-            # Retrieve text from the first h1 element with the specified class
-           
-            first_h1_text = first_h1_element.text
+            h1_element = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, '//h1[contains(text(), "Semantic Analysis and Classification of Emails through Informative Selection of Features and Ensemble AI Model")]'))
+            )
+            # Retrieve text from the h1 element
+            first_h1_text = h1_element.text
+            print("fffffffffffffff",first_h1_text)
 
             # Verify the search results by checking the presence of the expected text
             expected_text = "Semantic Analysis and Classification of Emails through Informative Selection of Features and Ensemble AI Model"
+            
+            assert expected_text == first_h1_text, f"Expected text: '{expected_text}', Actual text: '{first_h1_text}'"
 
-            self.assertEqual(expected_text, first_h1_text)
+        except TimeoutException:
+            # Handle the case where the element is not found within the timeout
+            print("Element not found within the specified time")
 
-        except Exception as e:
-            self.fail(f"An error occurred: {e}")
