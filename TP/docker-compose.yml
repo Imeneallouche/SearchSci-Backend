@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  django:
+    image: django-docker:0.0.1
+    build: -
+    ports:
+      - "8000:8000"
+    depends_on:
+      - elasticsearch 
+
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
+    ports:
+      - "9200:9200"
