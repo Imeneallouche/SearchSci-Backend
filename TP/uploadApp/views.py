@@ -1,17 +1,5 @@
+''' ___________________________________Recherche & Filtrage________________________________________________'''
 from django_elasticsearch_dsl_drf.constants import (
-    LOOKUP_FILTER_TERMS,
-    LOOKUP_FILTER_RANGE,
-    LOOKUP_FILTER_PREFIX,
-    LOOKUP_FILTER_WILDCARD,
-    LOOKUP_QUERY_IN,
-    LOOKUP_QUERY_GT,
-    LOOKUP_QUERY_GTE,
-    LOOKUP_QUERY_LT,
-    LOOKUP_QUERY_LTE,
-    LOOKUP_QUERY_EXCLUDE,
-)
-from django_elasticsearch_dsl_drf.constants import (
-   
     SUGGESTER_COMPLETION,
 )
 from django_elasticsearch_dsl_drf.filter_backends import (
@@ -23,16 +11,10 @@ from django_elasticsearch_dsl_drf.filter_backends import (
 )
 from django_elasticsearch_dsl_drf.viewsets import BaseDocumentViewSet
 from django_elasticsearch_dsl_drf.pagination import PageNumberPagination
-
 from .documents import ArticleDocument
 from .serializers import ArticleDocumentSerializer
 
-
-
-
 class ArticleDocumentView(BaseDocumentViewSet):
-    
-
     document = ArticleDocument
     serializer_class = ArticleDocumentSerializer
     pagination_class = PageNumberPagination
@@ -57,45 +39,35 @@ class ArticleDocumentView(BaseDocumentViewSet):
             'path': 'references',
             'fields': ['titre'],
         },
-        'auteurs': {
+        'auteur_Nom': {
             'path': 'auteurs',
-            'fields': ['full_name','email','institution.nom','institution.adress'],
+            'fields': ['full_name'],
+        },
+        'auteur_Institution': {
+            'path': 'auteurs',
+            'fields': ['institution.nom'],
+        },
+
+        'auteur_Institution_adr': {
+            'path': 'auteurs',
+            'fields': ['institution.adress'],
+        },
+
+        'auteur_email': {
+            'path': 'auteurs',
+            'fields': ['institution.email'],
         },
     }
 
-    # Define filtering fields
+    # Define filtering fields 
     filter_fields = {
         'id': None,
         'traiter': 'traiter.raw',
         'motsCles':'motsCles.raw',
-        'auteurs.institution.nom': 'auteurs.institution.nom.raw',
-        'auteurs.nom': 'auteurs.full_name.raw',
-        # 'references':'references.titre.raw',
     }
     
-    # Nested filtering fields
-    # nested_filter_fields = {
-    #     'references': {
-    #         'field': 'titre.raw',
-    #         'path': 'references',
-            
-    #     },
-    #     'auteursName':{
-    #         'field': 'full_name.raw',
-    #         'path': 'auteurs',
-    #     },
-    # }
-
-    nested_filter_fields = {
-        'auteurs': ['full_name', 'institution.nom'],
-    }
-
-
-
-
     ordering_fields ={
         'id': 'id',
-
     }
 
     # Specify default ordering
@@ -118,7 +90,7 @@ class ArticleDocumentView(BaseDocumentViewSet):
     }
 
 
-    ''' ___________________________________________________________________________________'''
+''' ___________________________________upload & extraction________________________________________________'''
 import requests
 import os
 import fitz  # PyMuPDF
@@ -134,10 +106,11 @@ import re
 from openai import OpenAI
 from dotenv import find_dotenv, load_dotenv
 from articleApp.models import Reference, Institution, Auteur, Article
+import json
 
 dotenv_path = find_dotenv()
 load_dotenv(dotenv_path)
-REDIRECT_URI = 'https://localhost/'
+REDIRECT_URI = 'http://localhost:3000/UploadArticle'
 
 
 # Function to authenticate and get drive service
@@ -300,78 +273,85 @@ def get_references_list(references):
 
 
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.http import JsonResponse
 
 
-
-@csrf_exempt  # Disable CSRF protection for demonstration purposes
+@api_view(['POST'])
 def process_folder_link(request):
+    print("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
     if request.method == 'POST':
+        print("nnnnnnnnnn")
+        folder_link = request.data.get('folder_link', '')  # Get the folder link from the POST request
+        print(folder_link)
+        if not folder_link:
+            return Response({'error': 'No folder link provided'}, status=400)
 
-        drive_service = get_drive_service()
+        try:
+            drive_service = get_drive_service()
+        except Exception as e:
+            return Response({'error': f'Error connecting to Drive service: {str(e)}'}, status=500)
 
-        folder_link = request.POST.get('folder_link', '')  # Get the folder link from the POST request
-        
-        folder_id = extract_folder_id(folder_link) # Extract the folder ID from the link 
+        folder_id = extract_folder_id(folder_link)  # Extract the folder ID from the link 
         if folder_id is None:
-            return JsonResponse({'error': 'Invalid folder link provided'})
+            return Response({'error': 'Invalid folder link provided'}, status=400)
         
-        pdf_links = get_pdf_links_from_folder(folder_id, drive_service) #Get the files' links from the folder ID 
-        if pdf_links is None:
-            return JsonResponse({'error': 'Cannot extract links from folder'})
+        try:
+            pdf_links = get_pdf_links_from_folder(folder_id, drive_service)  # Get the files' links from the folder ID 
+        except Exception as e:
+            return Response({'error': f'Failed to extract links from folder: {str(e)}'}, status=500)
+
+        if not pdf_links:
+            return Response({'error': 'No PDF links found in the provided folder'}, status=400)
+
         processed_pdfs = []
 
-        for pdf_link in pdf_links: #Processing each link
-            
-            title, authors, abstract, keywords, text, references = extract_text_from_pdf(pdf_link, drive_service) #Extracting text from the pdf file
+        for pdf_link in pdf_links:  # Processing each link
+            try:
+                title, authors, abstract, keywords, text, references = extract_text_from_pdf(pdf_link, drive_service)  # Extracting text from the pdf file
+            except Exception as e:
+                return Response({'error': f'Failed to extract data from PDF: {str(e)}'}, status=500)
+
             if title is None:
-              return JsonResponse({'error': 'Error while extracting the title'})
-            if authors is None:
-              return JsonResponse({'error': 'Error while extracting the authors'})
-            if abstract is None:
-              return JsonResponse({'error': 'Error while extracting the abstract'}) 
-            if text is None:
-              return JsonResponse({'error': 'Error while extracting the text'}) 
-            if keywords is None:
-              return JsonResponse({'error': 'Error while extracting the keywords'}) 
-            if references is None:
-              return JsonResponse({'error': 'Error while extracting the references'})   
+                return Response({'error': 'Error while extracting data from PDF'}, status=400)
 
-            authors_list = get_authors_list(authors)
-            references_list = get_references_list(references)
-            processed_pdfs = []
-            processed_pdfs.append({
-                'Lien': pdf_link,
-                'Titre': title,
-                'Auteurs': authors_list,
-                'Résumé': abstract,
-                'Mots clés':keywords,
-                #'Texte intégral': text,
-                'Références': references_list,
-                })
-            
 
-            article = Article.objects.create(titre = title,resume = abstract,
-              texteIntegral = text,
-              motsCles = keywords,
-              urlPdf = pdf_link,)
-            
-            for author_data in authors_list:
-                 institution_data = author_data['institution']  
-                 nom, adress = institution_data.split(',', 1)  
-                 institution, created  = Institution.objects.get_or_create(nom=nom, adress=adress) 
-                 auteur, created  = Auteur.objects.get_or_create(full_name=author_data['full_name'], email=author_data['email'], institution=institution)
-                 article.auteurs.add(auteur)
-              
 
-            for reference_data in references_list:
-                 titre=reference_data['titre']
-                 print(titre)
-                 reference, created = Reference.objects.get_or_create(titre=titre)
-                 article.references.add(reference.id)
+            article = Article.objects.create(
+                titre=title,
+                resume=abstract,
+                texteIntegral=text,
+                motsCles=keywords,
+                urlPdf=pdf_link
+            )
 
-            article.save()  
-        # #  except Exception as e:
-        # #     processed_pdfs.append({'Lien': pdf_link, 'Erreur': f'Failed to process PDF: {str(e)}'})
-    
-    return JsonResponse({'processed_pdfs': processed_pdfs})
+            if authors is not None:
+                authors_list = get_authors_list(authors)
+                for author_data in authors_list:
+                    institution_data = author_data['institution']
+                    nom, address = institution_data.split(',', 1)
+                    institution, created = Institution.objects.get_or_create(nom=nom, adress=address)
+                    auteur, created = Auteur.objects.get_or_create(full_name=author_data['full_name'], email=author_data['email'], institution=institution)
+                    article.auteurs.add(auteur)
 
+            if references is not None: 
+               references_list = get_references_list(references)
+               for reference_data in references_list:
+                    titre = reference_data['titre']
+                    reference, created = Reference.objects.get_or_create(titre=titre)
+                    article.references.add(reference)
+
+            article.save()
+            # processed_pdfs.append({
+            #     'Lien': pdf_link,
+            #     'Titre': title,
+            #     'Auteurs': authors_list,
+            #     'Résumé': abstract,
+            #     'Mots clés': keywords,
+            #     'Références': references_list,
+            # })
+
+        return Response({'message': 'Articles successfully uploaded', 'processed_pdfs': processed_pdfs})
+    else:
+        return Response({'error': 'Invalid request method'}, status=405)

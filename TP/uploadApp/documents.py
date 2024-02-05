@@ -51,34 +51,19 @@ class ArticleDocument(Document):
             'raw': KeywordField(),
         }
     )
-
-
-  
     urlPdf = fields.TextField(
           fields={
             'raw': KeywordField(),
         }
         
     )
-
     dateDePublication=fields.DateField(
          fields={
             'raw': {
-                'type': 'keyword',
-                
+                'type': 'keyword',    
             }
         }, )
-
-
-    # texteIntegral= fields.TextField(
-    #     attr='texteIntegral',
-    #     fields={
-    #         'raw': {
-    #             'type': 'keyword',
-                
-    #         }
-    #     },
-    # )
+    
     traiter= fields.BooleanField(
         fields={
             'raw': {
@@ -87,8 +72,7 @@ class ArticleDocument(Document):
             }
         },
     )
-
-
+    
     auteurs = fields.NestedField(
         properties={
         'full_name': fields.TextField(),
@@ -107,6 +91,5 @@ class ArticleDocument(Document):
         } ),
     })
     
-
     class Django(object):
         model = Article
